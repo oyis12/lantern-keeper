@@ -41,4 +41,4 @@ Workspace was empty and not a Git checkout. Cloned the owner's empty `https://gi
 
 ## Publication and packaged startup
 
-All local checks above are complete. Preparing the initial implementation commit and push to `origin/main`. CI is configured but no remote run result has been observed yet. The milestone still requires the real-webcam acceptance checklist before it can be considered accepted.
+All local checks above are complete. Implementation commit `bbb6a3b` was pushed successfully to `origin/main` in `oyis12/lantern-keeper`. This follow-up record preserves the observed publication and test results. CI is configured but no remote run result has been observed yet. The milestone still requires the real-webcam acceptance checklist before it can be considered accepted.
