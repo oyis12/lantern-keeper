@@ -9,9 +9,11 @@ export function LanternScene({ glow, reducedMotion }: { glow: number; reducedMot
     const app = new Application();
     let disposed = false, initialized = false;
     void (async () => {
-      await app.init({ width: 1100, height: 590, backgroundAlpha: 0, antialias: true, resolution: Math.min(devicePixelRatio, 2), autoDensity: true });
+      await app.init({ width: 1100, height: 590, backgroundAlpha: 0, antialias: true, resolution: 1, autoDensity: true });
       initialized = true;
       if (disposed) { app.destroy(true, { children: true }); return; }
+      // Leave CPU/GPU headroom for the camera and native inference pipeline.
+      app.ticker.maxFPS = 30;
       host.current?.appendChild(app.canvas);
       const sky = new Graphics();
       sky.rect(0, 0, 1100, 590).fill(0x102c3b);

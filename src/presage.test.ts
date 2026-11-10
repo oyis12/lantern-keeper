@@ -25,3 +25,12 @@ it('wires the official SDK API and decodes real wire messages using synthetic re
   expect(mock.stream).toHaveBeenCalledWith(stream); expect(mock.start).toHaveBeenCalledOnce();
   await sensor.stop(); sensor.destroy(); expect(mock.stop).toHaveBeenCalledOnce(); expect(mock.destroy).toHaveBeenCalledOnce();
 });
+it('retains low-frame-rate context for processing failures and redacts the key', async () => {
+  const sensor = await createPresageSensor('private-test-key'); const error = vi.fn();
+  sensor.onValidation(vi.fn()); sensor.onError(error);
+  mock.callbacks.get('validationStatus')!(11, 1, 'Use a camera mode providing at least 25 fps');
+  mock.callbacks.get('error')!(8, 'Processing stopped private-test-key', false);
+  expect(error.mock.calls[0][0]).toContain('low frame rate');
+  expect(error.mock.calls[0][0]).toContain('SDK detail: Processing stopped [redacted]');
+  expect(error.mock.calls[0][0]).not.toContain('private-test-key');
+});

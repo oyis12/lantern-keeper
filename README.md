@@ -16,6 +16,8 @@ Enter your API key in the app, check the camera consent box, then select **Light
 
 The native SDK processes video locally; authentication needs internet access. The app does not record frames or measurements. Aggregate SDK telemetry is disabled. This is a wellness experience, not a medical device.
 
+If the SDK warns about frame rate, brighten the room and light your face/chest evenly, close other camera/video applications and heavy CPU/GPU work, then retry. Presage needs sustained capture around 25 fps minimum, with 30 fps recommended. The app requests that minimum and shows the selected camera mode, but this number is not a live measurement of frames reaching inference. Error 8 means processing failed; it does not specifically mean the API key is invalid. The error panel preserves low-frame-rate context and redacts the current key from SDK error details.
+
 ## Checks and builds
 
 ```powershell

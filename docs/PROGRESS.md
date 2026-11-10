@@ -1,5 +1,16 @@
 # Progress — 2026-11-09
 
+## Update — 2026-11-10: low camera frame rate / error 8
+
+- Owner disabled Smart App Control, launched the app and reported a warning about a camera mode providing approximately 25 fps, followed by processing error 8. This is user-reported real-camera behavior, not successful breathing verification.
+- Native binding import now succeeds outside the sandbox and reports SDK 3.4.0. The previous native-loading block is resolved for this check; no camera or credentials were accessed by the agent.
+- Official [measurement-quality guidance](https://smartspectra.presagetech.com/docs/measurement-quality/) calls for a sustained camera rate around 25 fps minimum and a 30 fps target. Low light and CPU/GPU contention can lower delivered fps. Error 8 is `kProcessingFailed`, not specifically an authentication failure.
+- Camera capture now requests a mandatory minimum of 25 fps with a 30 fps preference, caps resolution at 1280×720, rejects and releases reported sub-25-fps streams, and explains unsupported modes. It never silently drops the minimum or retries denied permission.
+- The UI shows selected camera resolution/fps (reported mode, not measured inference throughput). The SDK remains authoritative for live delivery quality. Pixi rendering is limited to 30 fps at 1× resolution to leave more inference headroom.
+- Processing-error feedback retains low-frame-rate context and includes bounded SDK details with the current API key redacted. Authentication, credits, network and unavailable-camera errors have distinct guidance.
+- Synthetic regression tests cover capture constraints, slow-mode release, unsupported mode, permission denial, and processing-error context/key redaction. **31 unit/component tests pass**, TypeScript/Vite build passes, browser regression passes, Windows packaging passes, and packaged startup smoke passes. Browser/desktop smoke checks did not request camera access. Native binding load was verified separately without credentials or capture.
+- Real-camera recovery and sustained breathing measurement still require the owner to retry with good lighting and other camera/heavy applications closed. A strict requested frame rate does not guarantee sustained frame delivery.
+
 ## Starting environment
 
 Workspace was empty and not a Git checkout. Cloned the owner's empty `https://github.com/oyis12/lantern-keeper.git` repository. Windows x64 (builder reports 10.0.26200), Node 24.18.0, npm 12.0.2, Git 2.55.0; GitHub CLI and CMake unavailable. No `SMARTSPECTRA*` credential environment variable was present. No real camera was requested during development checks.
