@@ -1,5 +1,13 @@
 # Progress — 2026-11-09
 
+## Update — 2026-11-10: owner completed native capture comparison
+
+- Owner supplied output from a real 60-second native SDK run using HP HD Camera, requested 640×480/30. No authentication error this time. Final counts: 1061 callbacks, through=1061, skipped=0, metrics packets=0, stable packets=0. Five-second callback arrival rates were mostly 16.6/s, with 21.8/s initially and one 24.5/s interval. These are callback timings, not a direct raw-camera or completed-inference benchmark.
+- SDK validation alternated among OK (0), no face (1), insufficient light (5), chest not visible (7), face too high (15) and low frame rate (11). No breathing measurement or stable metric output was produced. The timed run completed without error 8, but completion is not measurement acceptance. Physical camera release has not been independently verified.
+- Reproducing low frame flow without Electron/Pixi means village rendering/browser copying is not the sole cause. It does not distinguish camera exposure/driver behavior, native processing capacity, SDK behavior, or environmental quality issues, and does not establish laptop incompatibility.
+- Next controlled run: improve bright diffuse front lighting and maintain one centered face plus visible upper chest, with the camera stationary and no talking. Low light can lengthen exposure and reduce camera fps according to Presage guidance. If low frame flow persists with stable good framing/light, compare another available webcam on this laptop or the same native test on a borrowed PC, and prepare a Presage support report. Avoid repeated speculative app changes or a hardware-purchase recommendation without this comparison.
+- This update records user-provided hardware evidence only; no new code or automated camera test was performed.
+
 ## Update — 2026-11-10: native prompt cancellation
 
 - Owner supplied exact terminal output confirming lowercase `yes` produced `Canceled. Camera not opened.` Found a CLI usability bug: only literal uppercase `YES` was accepted, so lowercase input canceled before discovery. The prompt now accepts explicit `yes` in any letter case, and cancellation versus an empty discovery result have distinct messages. No implicit `y` or other consent forms are accepted. A PSReadLine module notice preceded the tool but did not prevent Node from accepting input; it is separate from camera discovery.
