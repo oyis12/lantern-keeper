@@ -22,6 +22,8 @@ After an error, **Camera diagnostics** opens automatically and retains the last 
 
 For a lower-load comparison, choose **Capture size → Lower load · 640 × 480** before Start. This reduces the requested image size while retaining the 25 fps minimum and 30 fps target. It uses the real camera and SDK, but smaller images may reduce tracking quality. Check the negotiated mode, callback flow and actual stable breathing readings; this option is an experiment, not a guaranteed hardware-compatibility fix.
 
+If both capture sizes fail, close the desktop app and run `npm run native:compare` from this repository in an interactive terminal. This minimal comparison uses the official SDK's native `useCamera` path without Electron, Pixi or browser frame copying. Type `YES` to consent, choose the same regular RGB webcam (not the IR/Windows Hello camera), then paste your API key at the hidden-input prompt. Keys are not accepted as shell arguments or environment variables. It requests 640×480 at 30 fps, runs up to 60 seconds, and stops/destroys the native session on completion, error or Ctrl+C. No footage, vital-sign values or diagnostic file is saved; SDK telemetry/accumulated output are disabled. Share the callback rates, validation/error codes and final counts, never the key. Check the physical camera indicator goes off afterward. Requested settings and callback rates are not completed-inference benchmarks. A successful native test would implicate the browser integration overhead; another failure still does not by itself prove the laptop is unsupported.
+
 ## Checks and builds
 
 ```powershell

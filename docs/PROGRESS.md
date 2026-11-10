@@ -1,5 +1,12 @@
 # Progress — 2026-11-09
 
+## Update — 2026-11-10: lower-load mode still below threshold
+
+- Owner reports real-camera 640×480 at selected 30 fps: 364 callbacks, through=364, skipped=0, recent arrival rate 19.9/s, timestamp rate 20.0 fps, then low-frame-rate/error 8. This is higher than the previous ~16.5 fps at 720p but still below the SDK's indicated minimum. Image size appears to influence the callback path, but no root cause or hardware compatibility verdict is established.
+- Added `npm run native:compare`: a minimal Node terminal harness following the official native `useCamera(CameraSelection.byId(...), { width, height, fps })` API. It removes Electron/browser capture and Pixi for comparison, uses the same requested breathing metrics at 640×480/30, and requires new explicit `YES` consent, manual camera selection and hidden API-key entry. No credentials in arguments/env/files, no footage/vital-sign values in output/files, no aggregate SDK telemetry or accumulated output. It prints frame/validation/quality counts and stops/destroys on error, Ctrl+C or 60 seconds.
+- Automated verification uses a mocked SDK, not webcam inference: consent/key guards, native camera configuration, synthetic frame/quality counts, key redaction, cancellation/deadline and stop-failure cleanup. Full suite passes 42 tests; TypeScript/Vite build, script syntax checks and browser regression pass. Native comparison is ready for interactive owner use; no key was available to the agent and no real native capture was run by automated checks. No successful native camera session is claimed.
+- Next: owner runs the native comparison with the same regular RGB camera. If it sustains adequate flow and stable packets while Electron does not, investigate browser copying/rendering. If native also fails, inspect camera/driver/SDK/device performance and consider a second-PC comparison; do not promise a hardware purchase will fix it.
+
 ## Update — 2026-11-10: 16–17 fps callback flow at 720p
 
 - Owner's real-camera report: selected 1280×720 at 30 fps, 157 SDK callbacks, through=157, skipped=0; recent callback arrival rate 16.7/s, callback timestamp rate 16.5 fps, then SDK low-frame-rate feedback/error 8. The zero skipped count applies only to frames reported by that callback; it does not rule out upstream drops or processing backpressure. Average timing does not isolate the root cause or establish hardware incompatibility.
