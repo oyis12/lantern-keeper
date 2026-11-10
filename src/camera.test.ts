@@ -14,6 +14,10 @@ it('requires at least 25 fps without requesting microphone access', async () => 
   expect(f.capture).toHaveBeenCalledWith(expect.objectContaining({ audio: false, video: expect.objectContaining({ frameRate: { min: 25, ideal: 30 } }) }));
   expect(f.stop).not.toHaveBeenCalled();
 });
+it('requests a smaller real-camera mode without relaxing frame rate', async () => {
+  const f = camera(30); await captureCamera('lower-load');
+  expect(f.capture).toHaveBeenCalledWith({ audio: false, video: { width: { ideal: 640, max: 640 }, height: { ideal: 480, max: 480 }, frameRate: { min: 25, ideal: 30 }, facingMode: 'user' } });
+});
 it('releases a stream whose reported camera mode is too slow', async () => {
   const f = camera(15); await expect(captureCamera()).rejects.toThrow('15.0 fps'); expect(f.stop).toHaveBeenCalledOnce();
 });

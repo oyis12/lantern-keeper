@@ -4,6 +4,21 @@ import { it, expect, vi } from 'vitest';
 import { App } from './App';
 import { fixture } from './test/fakes';
 vi.mock('./LanternScene', () => ({ LanternScene: () => <div>Harbor scene</div> }));
+it('uses the selected lower-load mode only after consent and Start', async () => {
+  const f = fixture(), user = userEvent.setup();
+  Object.assign(f.stream, { getVideoTracks: () => [{ getSettings: () => ({ width: 640, height: 480, frameRate: 30 }) }] });
+  const getUserMedia = vi.fn().mockResolvedValue(f.stream);
+  Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: { getUserMedia } });
+  render(<App createSensor={f.create}/>);
+  await user.selectOptions(screen.getByLabelText('Capture size'), 'lower-load'); expect(getUserMedia).not.toHaveBeenCalled();
+  await user.type(screen.getByLabelText(/Presage API key/), 'test-key'); await user.click(screen.getByRole('checkbox'));
+  expect(getUserMedia).not.toHaveBeenCalled(); await user.click(screen.getByRole('button', { name: /Light the lantern/ }));
+  await waitFor(() => expect(getUserMedia).toHaveBeenCalledWith(expect.objectContaining({ video: expect.objectContaining({ width: { ideal: 640, max: 640 } }) })));
+  expect(screen.queryByLabelText('Capture size')).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /Stop & release/ }));
+  await waitFor(() => expect(screen.getByLabelText('Capture size')).toHaveValue('lower-load'));
+  expect(f.track.stop).toHaveBeenCalledOnce();
+});
 it('keeps diagnostic counts and mode readable after processing fails and the preview closes', async () => {
   const f = fixture(), user = userEvent.setup();
   Object.assign(f.stream, { getVideoTracks: () => [{ getSettings: () => ({ width: 1280, height: 720, frameRate: 30 }) }] });

@@ -2,16 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { BreathingSession, initialState, type Sensor } from './session';
 import { LanternScene } from './LanternScene';
 import { HarborAudio } from './audio';
-import { captureCamera } from './camera';
+import { captureCamera, type CameraProfile } from './camera';
 const productionSensor = async (key: string) => (await import('./presage')).createPresageSensor(key);
-export function App({ createSensor = productionSensor, capture = captureCamera }: { createSensor?: (key: string) => Promise<Sensor>; capture?: () => Promise<MediaStream> }) {
+export function App({ createSensor = productionSensor, capture }: { createSensor?: (key: string) => Promise<Sensor>; capture?: () => Promise<MediaStream> }) {
   const [state, setState] = useState(initialState);
   const [consent, setConsent] = useState(false), [key, setKey] = useState('');
   const [sound, setSound] = useState(false), [reducedMotion, setReducedMotion] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [audioError, setAudioError] = useState('');
+  const [cameraProfile, setCameraProfile] = useState<CameraProfile>('standard');
+  const captureCurrent = useRef<() => Promise<MediaStream>>(() => captureCamera());
+  captureCurrent.current = capture ?? (() => captureCamera(cameraProfile));
   const sdkUnavailable = new URLSearchParams(location.search).get('sdk') === 'unavailable';
   const session = useRef<BreathingSession | null>(null);
-  if (!session.current) session.current = new BreathingSession(createSensor, capture, setState);
+  if (!session.current) session.current = new BreathingSession(createSensor, () => captureCurrent.current(), setState);
   const audio = useRef(new HarborAudio());
   const preview = useRef<HTMLVideoElement>(null);
   useEffect(() => { if (preview.current) preview.current.srcObject = state.stream; }, [state.stream]);
@@ -37,7 +40,7 @@ export function App({ createSensor = productionSensor, capture = captureCamera }
         <p className="hint">{state.hint}</p>
         <video ref={preview} autoPlay muted playsInline aria-label="Local camera framing preview" hidden={!state.stream}/>
         {state.cameraMode && <details className="privacy" open={state.phase === 'error'}><summary>Camera diagnostics {state.stream ? '(live)' : '(last session)'}</summary><p>Camera mode: {state.cameraMode}</p><p>SDK frame callbacks: {state.flow.callbacks} · through: {state.flow.through} · skipped: {state.flow.skipped}</p><p>Callback arrival rate: {state.flow.arrivalFps?.toFixed(1) ?? 'waiting'} /s<br/>Callback timestamp rate: {state.flow.timestampFps?.toFixed(1) ?? 'waiting'} fps</p><p>Recent callback timing only, not completed inference or a direct camera-speed test. Batching and delays can affect these rates. No images or breathing readings are saved.</p></details>}
-        {!active && <><label className="key-label" htmlFor="api-key">Presage API key <span>Kept in memory only</span></label><input id="api-key" type="password" autoComplete="off" spellCheck={false} value={key} onChange={e => setKey(e.target.value)} placeholder="Enter your SmartSpectra key"/><label className="consent"><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)}/><span>I consent to camera access to measure my breathing for this session.</span></label></>}
+        {!active && <><label className="key-label" htmlFor="camera-profile">Capture size</label><select className="camera-profile" id="camera-profile" value={cameraProfile} onChange={e => setCameraProfile(e.target.value as CameraProfile)}><option value="standard">Standard · 1280 × 720</option><option value="lower-load">Lower load · 640 × 480</option></select><p className="privacy">Try lower load if frame delivery is slow. It reduces image detail and may affect tracking. Both modes require at least 25 fps.</p><label className="key-label" htmlFor="api-key">Presage API key <span>Kept in memory only</span></label><input id="api-key" type="password" autoComplete="off" spellCheck={false} value={key} onChange={e => setKey(e.target.value)} placeholder="Enter your SmartSpectra key"/><label className="consent"><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)}/><span>I consent to camera access to measure my breathing for this session.</span></label></>}
         {sdkUnavailable && <p className="hint" role="alert">The SmartSpectra native runtime could not load. Camera access is disabled. Check Windows application control or the SDK installation, then reopen the app.</p>}
         {!active ? <button className="primary" disabled={sdkUnavailable || !consent || !key.trim()} onClick={() => { void session.current?.start(consent, key); setKey(''); }}>Light the lantern <span>↗</span></button> : <button className="primary" disabled={state.phase === 'stopping'} onClick={() => { void session.current?.stop(); setConsent(false); }}>Stop & release camera <span>□</span></button>}
         <p className="privacy">Video is processed locally by SmartSpectra. This app does not record or upload footage. SDK authentication requires an internet connection. Aggregate SDK telemetry is disabled.</p>

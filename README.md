@@ -20,6 +20,8 @@ If the SDK warns about frame rate, brighten the room and light your face/chest e
 
 After an error, **Camera diagnostics** opens automatically and retains the last camera mode, SDK frame callback counts and callback timing rates in memory. Share those lines when reporting a failure. Callback arrival rate and callback timestamp rate are distinct; callback batching and delivery delays can affect them. They are not a completed-inference benchmark or proof of camera capability. Starting a new session clears the previous snapshot; closing the app discards it. No images or breathing readings are retained by this diagnostic feature.
 
+For a lower-load comparison, choose **Capture size → Lower load · 640 × 480** before Start. This reduces the requested image size while retaining the 25 fps minimum and 30 fps target. It uses the real camera and SDK, but smaller images may reduce tracking quality. Check the negotiated mode, callback flow and actual stable breathing readings; this option is an experiment, not a guaranteed hardware-compatibility fix.
+
 ## Checks and builds
 
 ```powershell

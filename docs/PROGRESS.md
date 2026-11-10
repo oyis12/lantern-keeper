@@ -1,5 +1,13 @@
 # Progress — 2026-11-09
 
+## Update — 2026-11-10: 16–17 fps callback flow at 720p
+
+- Owner's real-camera report: selected 1280×720 at 30 fps, 157 SDK callbacks, through=157, skipped=0; recent callback arrival rate 16.7/s, callback timestamp rate 16.5 fps, then SDK low-frame-rate feedback/error 8. The zero skipped count applies only to frames reported by that callback; it does not rule out upstream drops or processing backpressure. Average timing does not isolate the root cause or establish hardware incompatibility.
+- Added an explicit **Capture size** selection: standard 1280×720 or **Lower load · 640×480**, with the same mandatory 25 fps minimum and 30 fps target. Lower mode requests at most one-third the standard pixel count, reducing the RGBA copy volume if negotiated as requested. It is real webcam input, never simulation. It may reduce tracking quality; neither sustained fps nor valid breathing at this size is verified yet.
+- The selection changes only between sessions and is read at the next deliberate Start, preserving consent and cleanup. No automatic retries, frame-rate requirement changes, SDK/dependency patches or camera access during automated checks.
+- Validation: 38 synthetic unit/component tests, TypeScript/Vite production build, browser test (including selection without premature capture), Windows packaging and packaged startup smoke all pass. Browser screenshot inspected. No automated webcam measurement was attempted. Changes committed/pushed as the lower-load experiment; no successful real-camera inference claimed.
+- Next manual experiment: owner selects lower load, retries and reports negotiated dimensions, callback rates/counts and whether stable breathing readings arrive after warm-up. If it still fails, compare with a minimal official SDK session before recommending hardware replacement.
+
 ## Update — 2026-11-10: selected 30 fps still fails
 
 - Owner reports selected mode `1280 × 720 · 30.0 fps`, then SDK low-frame-rate feedback and error 8, despite charger connected and battery saver off. Laptop: EliteBook x360 1030 G2, 7th-generation i7, 16 GB RAM, 256 GB storage. No sustained breathing measurement has been verified. Selected camera settings do not establish delivered throughput or hardware incompatibility.

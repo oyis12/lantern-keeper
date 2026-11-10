@@ -1,10 +1,13 @@
-export async function captureCamera(): Promise<MediaStream> {
+export type CameraProfile = 'standard' | 'lower-load';
+export async function captureCamera(profile: CameraProfile = 'standard'): Promise<MediaStream> {
+  const width = profile === 'lower-load' ? 640 : 1280;
+  const height = profile === 'lower-load' ? 480 : 720;
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: false,
       video: {
-        width: { ideal: 1280, max: 1280 },
-        height: { ideal: 720, max: 720 },
+        width: { ideal: width, max: width },
+        height: { ideal: height, max: height },
         frameRate: { min: 25, ideal: 30 },
         facingMode: 'user',
       },

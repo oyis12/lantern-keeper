@@ -9,6 +9,8 @@ test('browser shell renders the harbor and never requests a camera before consen
   await expect(page.getByRole('heading', { level: 1 })).toContainText('A little light.');
   await expect(page.getByRole('button', { name: /Light the lantern/ })).toBeDisabled();
   await expect(page.locator('canvas')).toBeVisible();
+  await page.getByLabel('Capture size').selectOption('lower-load');
+  await expect(page.getByLabel('Capture size')).toHaveValue('lower-load');
   await page.getByLabel(/Presage API key/).fill('synthetic-test-key');
   await page.getByRole('checkbox').check();
   await expect(page.getByRole('button', { name: /Light the lantern/ })).toBeEnabled();
