@@ -4,6 +4,17 @@ import { fixture } from './test/fakes';
 import type { Packet } from './signals';
 const packet: Packet = { breathing: { rate: [{ value: 12, confidence: 80, stable: true }], upperTrace: [{ value: 2, stable: true }] } };
 afterEach(() => vi.useRealTimers());
+it('retains camera mode and frame counts after failure, ignoring late callbacks', async () => {
+  const f = fixture();
+  Object.assign(f.stream, { getVideoTracks: () => [{ getSettings: () => ({ width: 1280, height: 720, frameRate: 30 }) }] });
+  const session = new BreathingSession(f.create, f.capture, vi.fn()); await session.start(true, 'key');
+  f.frame(true, 1); f.frame(false, 2); f.error('Processing failed');
+  await vi.waitFor(() => expect(session.state.phase).toBe('error'));
+  f.frame(true, 3);
+  expect(session.state.stream).toBeNull(); expect(session.state.cameraMode).toBe('1280 × 720 · 30.0 fps');
+  expect(session.state.flow).toMatchObject({ callbacks: 2, through: 1, skipped: 1 });
+  await session.start(true, 'key'); expect(session.state.flow.callbacks).toBe(0); await session.stop();
+});
 it('does not create a sensor or request camera without explicit consent and key', async () => {
   const f = fixture(), session = new BreathingSession(f.create, f.capture, vi.fn());
   await session.start(false, 'key'); await session.start(true, '');

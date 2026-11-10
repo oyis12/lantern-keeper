@@ -1,9 +1,22 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { it, expect, vi } from 'vitest';
 import { App } from './App';
 import { fixture } from './test/fakes';
 vi.mock('./LanternScene', () => ({ LanternScene: () => <div>Harbor scene</div> }));
+it('keeps diagnostic counts and mode readable after processing fails and the preview closes', async () => {
+  const f = fixture(), user = userEvent.setup();
+  Object.assign(f.stream, { getVideoTracks: () => [{ getSettings: () => ({ width: 1280, height: 720, frameRate: 30 }) }] });
+  render(<App createSensor={f.create} capture={f.capture}/>);
+  await user.type(screen.getByLabelText(/Presage API key/), 'test-key'); await user.click(screen.getByRole('checkbox')); await user.click(screen.getByRole('button', { name: /Light the lantern/ }));
+  await waitFor(() => expect(f.sensor.start).toHaveBeenCalled());
+  await act(async () => { f.frame(true, 1); f.frame(false, 2); f.error('Processing failed'); });
+  await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Session needs attention'));
+  expect(screen.getByText(/Camera mode: 1280 × 720/)).toBeVisible();
+  expect(screen.getByText(/SDK frame callbacks: 2/)).toBeVisible();
+  expect(screen.getByLabelText('Local camera framing preview')).not.toBeVisible();
+  expect(f.track.stop).toHaveBeenCalledOnce();
+});
 it('requires consent and a key, starts only on click, and releases the camera on Stop', async () => {
   const f = fixture(), user = userEvent.setup(); render(<App createSensor={f.create} capture={f.capture}/>);
   const start = screen.getByRole('button', { name: /Light the lantern/ });

@@ -18,6 +18,8 @@ The native SDK processes video locally; authentication needs internet access. Th
 
 If the SDK warns about frame rate, brighten the room and light your face/chest evenly, close other camera/video applications and heavy CPU/GPU work, then retry. Presage needs sustained capture around 25 fps minimum, with 30 fps recommended. The app requests that minimum and shows the selected camera mode, but this number is not a live measurement of frames reaching inference. Error 8 means processing failed; it does not specifically mean the API key is invalid. The error panel preserves low-frame-rate context and redacts the current key from SDK error details.
 
+After an error, **Camera diagnostics** opens automatically and retains the last camera mode, SDK frame callback counts and callback timing rates in memory. Share those lines when reporting a failure. Callback arrival rate and callback timestamp rate are distinct; callback batching and delivery delays can affect them. They are not a completed-inference benchmark or proof of camera capability. Starting a new session clears the previous snapshot; closing the app discards it. No images or breathing readings are retained by this diagnostic feature.
+
 ## Checks and builds
 
 ```powershell

@@ -1,5 +1,13 @@
 # Progress — 2026-11-09
 
+## Update — 2026-11-10: selected 30 fps still fails
+
+- Owner reports selected mode `1280 × 720 · 30.0 fps`, then SDK low-frame-rate feedback and error 8, despite charger connected and battery saver off. Laptop: EliteBook x360 1030 G2, 7th-generation i7, 16 GB RAM, 256 GB storage. No sustained breathing measurement has been verified. Selected camera settings do not establish delivered throughput or hardware incompatibility.
+- Inspected installed SDK 3.4.0 renderer: each frame is drawn to an OffscreenCanvas, read as RGBA and structured-cloned through the official bridge to main/native processing. This is a plausible overhead source, not a confirmed root cause.
+- Added in-memory frame-flow diagnostics using the documented `frameSentThrough(sent, timestampUs)` event. UI retains selected camera mode, total callbacks, through/skipped counts and recent callback arrival/source-timestamp rates after stop/error; clears at the next session. Rates describe callback timing, not completed inference or a direct camera benchmark. Callback batching/delays and upstream frame loss can affect interpretation. No vendor timestamp history, footage, keys or physiological values are persisted.
+- Windows hardware query confirms i7-7600U (2 physical cores, 4 logical processors), Intel HD Graphics 620. This does not establish an SDK compatibility verdict.
+- Regression tests cover arrival versus source timing, skipped callbacks, insufficient/stale samples, vendor event forwarding, and failure snapshot retention/late-callback exclusion. Full suite passed 35 tests, then the additional UI-retention test passed with all four App tests (36 tests in total). TypeScript/Vite build, browser check, Windows packaging and packaged startup smoke all passed. Automated checks used synthetic measurements or no capture; no successful real-camera inference is claimed. Next: owner retries the diagnostic build and reports retained callback counts/rates; use those observations to guide a minimal SDK comparison or further capture-path changes instead of declaring the laptop unsupported.
+
 ## Update — 2026-11-10: low camera frame rate / error 8
 
 - Owner disabled Smart App Control, launched the app and reported a warning about a camera mode providing approximately 25 fps, followed by processing error 8. This is user-reported real-camera behavior, not successful breathing verification.

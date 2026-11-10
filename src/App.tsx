@@ -22,7 +22,6 @@ export function App({ createSensor = productionSensor, capture = captureCamera }
     return () => { removeEventListener('pagehide', stop); stop(); };
   }, []);
   const active = ['starting', 'measuring', 'stopping'].includes(state.phase);
-  const cameraMode = state.stream?.getVideoTracks?.()[0]?.getSettings?.();
   async function toggleSound() {
     if (sound) { await audio.current.stop(); setSound(false); }
     else try { await audio.current.start(); setSound(true); setAudioError(''); } catch { await audio.current.stop(); setAudioError('Ambient sound is unavailable on this device.'); }
@@ -37,7 +36,7 @@ export function App({ createSensor = productionSensor, capture = captureCamera }
         <div className="metrics"><div><strong>{state.reading.rate === null ? '—' : state.reading.rate.toFixed(1)}</strong><small>BREATHS / MIN</small></div><div><strong>{state.reading.confidence === null ? '—' : `${state.reading.confidence.toFixed(0)}%`}</strong><small>SDK CONFIDENCE</small></div></div>
         <p className="hint">{state.hint}</p>
         <video ref={preview} autoPlay muted playsInline aria-label="Local camera framing preview" hidden={!state.stream}/>
-        {cameraMode && <p className="privacy">Camera mode: {cameraMode.width ?? '?'} × {cameraMode.height ?? '?'} · {cameraMode.frameRate?.toFixed(1) ?? '?'} fps. This is the selected mode; SDK feedback indicates delivery quality.</p>}
+        {state.cameraMode && <details className="privacy" open={state.phase === 'error'}><summary>Camera diagnostics {state.stream ? '(live)' : '(last session)'}</summary><p>Camera mode: {state.cameraMode}</p><p>SDK frame callbacks: {state.flow.callbacks} · through: {state.flow.through} · skipped: {state.flow.skipped}</p><p>Callback arrival rate: {state.flow.arrivalFps?.toFixed(1) ?? 'waiting'} /s<br/>Callback timestamp rate: {state.flow.timestampFps?.toFixed(1) ?? 'waiting'} fps</p><p>Recent callback timing only, not completed inference or a direct camera-speed test. Batching and delays can affect these rates. No images or breathing readings are saved.</p></details>}
         {!active && <><label className="key-label" htmlFor="api-key">Presage API key <span>Kept in memory only</span></label><input id="api-key" type="password" autoComplete="off" spellCheck={false} value={key} onChange={e => setKey(e.target.value)} placeholder="Enter your SmartSpectra key"/><label className="consent"><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)}/><span>I consent to camera access to measure my breathing for this session.</span></label></>}
         {sdkUnavailable && <p className="hint" role="alert">The SmartSpectra native runtime could not load. Camera access is disabled. Check Windows application control or the SDK installation, then reopen the app.</p>}
         {!active ? <button className="primary" disabled={sdkUnavailable || !consent || !key.trim()} onClick={() => { void session.current?.start(consent, key); setKey(''); }}>Light the lantern <span>↗</span></button> : <button className="primary" disabled={state.phase === 'stopping'} onClick={() => { void session.current?.stop(); setConsent(false); }}>Stop & release camera <span>□</span></button>}

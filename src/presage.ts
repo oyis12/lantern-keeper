@@ -7,6 +7,7 @@ export async function createPresageSensor(apiKey: string): Promise<Sensor> {
   const safeDetail = (message: string) => message.replaceAll(apiKey, '[redacted]').slice(0, 600);
   return {
     onMetrics: cb => { sdk.on('metrics', (buf, timestamp) => cb(decodeMetrics(buf), timestamp)); },
+    onFrame: cb => { sdk.on('frameSentThrough', cb); },
     onValidation: cb => { sdk.on('validationStatus', (code, _ts, hint) => { validationCode = code; cb(code, safeDetail(hint)); }); },
     onError: cb => { sdk.on('error', (code, message) => {
       if (code === 8) {

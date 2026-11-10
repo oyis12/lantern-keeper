@@ -16,6 +16,7 @@ it('wires the official SDK API and decodes real wire messages using synthetic re
   expect(mock.options).toMatchObject({ apiKey: 'synthetic-key', requestedMetrics: [0, 2], enableTelemetry: false, enableAccumulatedOutput: false });
   const received = vi.fn(), validation = vi.fn(), error = vi.fn();
   sensor.onMetrics(received); sensor.onValidation(validation); sensor.onError(error);
+  const frame = vi.fn(); sensor.onFrame(frame); mock.callbacks.get('frameSentThrough')!(true, 99); expect(frame).toHaveBeenCalledWith(true, 99);
   const bytes = Metrics.encode({ breathing: { rate: [{ value: 12, confidence: 80, stable: true }], upperTrace: [{ value: 0.2, stable: true }] } }).finish();
   mock.callbacks.get('metrics')!(bytes, 100);
   expect(received.mock.calls[0][0].breathing.rate[0].value).toBe(12);
