@@ -1,6 +1,6 @@
 const { createInterface } = require('node:readline/promises');
 const { Writable } = require('node:stream');
-const { runNativeComparison } = require('./native-session.cjs');
+const { runNativeComparison, hasCameraConsent } = require('./native-session.cjs');
 async function main() {
   if (!process.stdin.isTTY || !process.stdout.isTTY) throw new Error('Run npm run native:compare in an interactive terminal. Keys are never accepted as command arguments or environment variables.');
   let muted = false;
@@ -17,10 +17,10 @@ async function main() {
   let vendor, key, selected;
   try {
     console.log('Lantern Keeper — native SDK comparison\nClose The Lantern Keeper and other camera apps first.\nThis uses your real webcam for up to 60 seconds, with no village or browser capture.\nIt reports frame/quality counts, not breathing values, and saves no recording.');
-    if ((await ask('Type YES to consent to this webcam session (anything else cancels): ')).trim() !== 'YES') { console.log('Canceled. Camera not opened.'); return; }
+    if (!hasCameraConsent(await ask('Type yes to consent to this webcam session (any letter case; anything else cancels): '))) { console.log('Canceled before camera discovery. No webcam session was started.'); return; }
     vendor = require('@smartspectra/node-sdk');
     const cameras = vendor.SmartSpectraSDK.availableCameras();
-    if (!cameras.length) throw new Error('No cameras found.');
+    if (!cameras.length) { console.log('Native SDK discovery returned no cameras. No webcam session was started.'); return; }
     cameras.forEach((camera, index) => console.log(`${index + 1}. ${camera.name || 'Unnamed camera'}`));
     const choice = Number((await ask('Choose the same regular RGB webcam used in the app (number; avoid IR/Windows Hello): ')).trim());
     if (!Number.isInteger(choice) || choice < 1 || choice > cameras.length) throw new Error('Invalid camera choice. Camera not opened.');

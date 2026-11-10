@@ -1,5 +1,11 @@
 # Progress — 2026-11-09
 
+## Update — 2026-11-10: native prompt cancellation
+
+- Owner supplied exact terminal output confirming lowercase `yes` produced `Canceled. Camera not opened.` Found a CLI usability bug: only literal uppercase `YES` was accepted, so lowercase input canceled before discovery. The prompt now accepts explicit `yes` in any letter case, and cancellation versus an empty discovery result have distinct messages. No implicit `y` or other consent forms are accepted. A PSReadLine module notice preceded the tool but did not prevent Node from accepting input; it is separate from camera discovery.
+- Actual read-only native SDK discovery (no session or capture) succeeds and finds one camera named **HP HD Camera**. This verifies native discovery, not native video capture or breathing.
+- Added regression coverage for case/whitespace consent and rejection of ambiguous/non-consenting input. All 51 tests, TypeScript/Vite build and browser regression pass. Native capture comparison still awaits owner key and deliberate consent.
+
 ## Update — 2026-11-10: lower-load mode still below threshold
 
 - Owner reports real-camera 640×480 at selected 30 fps: 364 callbacks, through=364, skipped=0, recent arrival rate 19.9/s, timestamp rate 20.0 fps, then low-frame-rate/error 8. This is higher than the previous ~16.5 fps at 720p but still below the SDK's indicated minimum. Image size appears to influence the callback path, but no root cause or hardware compatibility verdict is established.

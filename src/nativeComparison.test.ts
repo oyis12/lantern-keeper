@@ -1,7 +1,9 @@
 // @vitest-environment node
 import { createRequire } from 'node:module';
 import { expect, it, vi, afterEach } from 'vitest';
-const { runNativeComparison } = createRequire(import.meta.url)('../scripts/native-session.cjs');
+const { runNativeComparison, hasCameraConsent } = createRequire(import.meta.url)('../scripts/native-session.cjs');
+it.each(['yes', 'YES', 'Yes', ' yes '])('accepts explicit consent in any letter case: %s', answer => expect(hasCameraConsent(answer)).toBe(true));
+it.each(['', 'y', 'no', 'yes please', undefined])('does not infer consent from %s', answer => expect(hasCameraConsent(answer)).toBe(false));
 afterEach(() => vi.useRealTimers());
 function fixture() {
   const callbacks = new Map<string, (...args: any[]) => void>();

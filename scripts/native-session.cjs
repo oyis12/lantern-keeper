@@ -1,4 +1,7 @@
 // Minimal native SDK comparison. No Electron, rendering or browser frame copying.
+function hasCameraConsent(answer) {
+  return typeof answer === 'string' && answer.trim().toUpperCase() === 'YES';
+}
 async function runNativeComparison({ vendor, consented, apiKey, cameraId, signal, report = console.log, durationMs = 60000 }) {
   if (!consented || !apiKey?.trim() || !cameraId || signal?.aborted) throw new Error('Camera consent, a key, and a camera selection are required.');
   const { SmartSpectraSDK, CameraSelection, MetricType, SmartSpectraLogLevel, decodeMetrics } = vendor;
@@ -47,4 +50,4 @@ async function runNativeComparison({ vendor, consented, apiKey, cameraId, signal
   report(`Result: ${summary.reason}; callbacks=${summary.callbacks}, through=${summary.through}, skipped=${summary.skipped}, metric packets=${summary.metricsPackets}, stable packets=${summary.stablePackets}. No footage or vital-sign values were saved.`);
   return summary;
 }
-module.exports = { runNativeComparison };
+module.exports = { runNativeComparison, hasCameraConsent };
