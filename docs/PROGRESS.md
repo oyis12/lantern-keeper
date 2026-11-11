@@ -1,5 +1,13 @@
 # Progress — 2026-11-09
 
+## Update — 2026-11-11: second owner native run
+
+- Owner ran `node .\scripts\native-compare.cjs` directly after PowerShell blocked npm.ps1. No execution-policy change is needed for the direct Node command.
+- Real 60-second native comparison, requested 640×480/30 on HP HD Camera: 593 callbacks, through=593, skipped=0, metrics packets=0, stable packets=0. Reported five-second arrival rates stayed around 9.8–10.2/s (8.8/s initially). Validation codes included OK (0), chest not visible (7), face too high (15), and low frame rate (11). No authentication error or breathing measurements. Timer completion is not acceptance; physical indicator release remains unverified.
+- This is slower than the first native run (~16.6/s) and confirms low callback flow in the native-only path, without isolating capture/exposure, driver, background load/thermal behavior, native SDK processing or a runtime issue. Zero skipped callbacks does not prove zero upstream loss. No claim that another PC or a purchased webcam will solve it.
+- Next discriminating evidence: compare another available webcam on this laptop or the same native harness on a borrowed supported PC, while obtaining stable face/chest framing. Prepare a Presage support inquiry with the two native results and the exact SDK/hardware configuration. Avoid more arbitrary resolution/threshold changes or repeating the same test without a changed condition.
+- Added a local support-report draft (not sent). Documentation-only update; no new automated webcam capture, code change or test run.
+
 ## Update — 2026-11-10: owner completed native capture comparison
 
 - Owner supplied output from a real 60-second native SDK run using HP HD Camera, requested 640×480/30. No authentication error this time. Final counts: 1061 callbacks, through=1061, skipped=0, metrics packets=0, stable packets=0. Five-second callback arrival rates were mostly 16.6/s, with 21.8/s initially and one 24.5/s interval. These are callback timings, not a direct raw-camera or completed-inference benchmark.
